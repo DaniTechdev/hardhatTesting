@@ -53,6 +53,42 @@ describe("MyTest", function () {
       //   console.log(myTest);
 
       expect(await myTest.unlockedTime()).to.be.equal(unlockTime);
+
+      //   const ab = expect(await myTest.unlockedTime()).to.be.equal(unlockTime);
+      //   console.log("ab", ab);
+    });
+
+    it("Should set the right owner", async function () {
+      const { myTest, owner } = await loadFixture(runEveryTime);
+
+      expect(await myTest.owner()).to.be.equal(owner.address);
+    });
+
+    //CHECKING THE BALANCE
+    it("Should recieve and store the funds to MyTest", async function () {
+      const { myTest, lockedAmount } = await loadFixture(runEveryTime);
+
+      //   console.log(lockedAmount);
+      //   const contractBal = await ethers.provider.getBalance(myTest.address);
+
+      //   console.log("contract.toNumber()", contractBal.toNumber());
+
+      expect(await ethers.provider.getBalance(myTest.address)).to.equal(
+        lockedAmount
+      );
+    });
+
+    //CONDITION CHECK
+
+    it("Should fail if the unlocked is not in the future", async function () {
+      const latestTime = await time.latest();
+
+      //   console.log(latestTime / 60 / 60 / 60 / 24);
+      const MyTest = await ethers.getContractFactory("MyTest");
+
+      await expect(MyTest.deploy(latestTime), { value: 1 }).to.be.revertedWith(
+        "Unlocked time should be in the future"
+      );
     });
   });
   runEveryTime();
