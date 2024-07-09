@@ -6,6 +6,7 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
+//0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
 // console.log(hre);
 
 // async function main() {
@@ -46,7 +47,13 @@ async function main() {
   // console.log(unlockedTime);
   // console.log(lockedAmount);
 
-  const MyTest
+  const MyTest = await hre.ethers.getContractFactory("MyTest");
+  const myTest = await MyTest.deploy(unlockedTime, { value: lockedAmount });
+
+  await myTest.deployed();
+
+  console.log(`Contract contain 1 ETH % address ${myTest.address}`);
+  // console.log(myTest);
 }
 
 main().catch((error) => {
