@@ -12,6 +12,7 @@ const {
 
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 // console.log(anyValue);
+//loadfixture allows us to run the functon over and over again
 
 //we will import the (expect) and it will help us to do the comparism in our deployed contract and in our test value to see if they are the same
 
@@ -37,8 +38,22 @@ describe("MyTest", function () {
     // console.log(otherAccount);
 
     const MyTest = await ethers.getContractFactory("MyTest");
-    const myTest = await MyTest.deployed(unlockTime, { value: lockedAmount });
+    const myTest = await MyTest.deploy(unlockTime, { value: lockedAmount });
+
+    // console.log(myTest, unlockTime, lockedAmount, owner);
+    return { myTest, unlockTime, lockedAmount, owner, otherAccount };
   }
 
+  //describe help usse to check for a specifuc condition we want to update in our ssmart contract;
+  describe("Deployment", async function () {
+    it("should check unlocked time", async function () {
+      const { myTest, unlockTime } = await loadFixture(runEveryTime);
+
+      //   console.log(unlockTime);
+      //   console.log(myTest);
+
+      expect(await myTest.unlockedTime()).to.be.equal(unlockTime);
+    });
+  });
   runEveryTime();
 });
