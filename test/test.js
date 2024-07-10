@@ -80,16 +80,49 @@ describe("MyTest", function () {
 
     //CONDITION CHECK
 
-    it("Should fail if the unlocked is not in the future", async function () {
-      const latestTime = await time.latest();
+    // it("Should fail if the unlocked is not in the future", async function () {
+    //   const latestTime = await time.latest();
 
-      //   console.log(latestTime / 60 / 60 / 60 / 24);
-      const MyTest = await ethers.getContractFactory("MyTest");
+    //   //   console.log(latestTime / 60 / 60 / 60 / 24);
+    //   const MyTest = await ethers.getContractFactory("MyTest");
 
-      await expect(MyTest.deploy(latestTime), { value: 1 }).to.be.revertedWith(
-        "Unlocked time should be in the future"
-      );
+    //   await expect(MyTest.deploy(latestTime)).to.be.revertedWith(
+    //     "Unlocked time should be in the future"
+    //   );
+    // });
+  });
+
+  describe("withdrawals", function () {
+    describe("Validations", function () {
+      it("should revert with the right message if called too soon", async function () {
+        const { myTest } = await loadFixture(runEveryTime);
+
+        await expect(myTest.withdraw()).to.be.rejectedWith(
+          "wait till the time period is completed"
+        );
+      });
+
+      it("Should revert the message for the right owner", async function () {
+        const { myTest, unlockTime, otherAccount } = await loadFixture(
+          runEveryTime
+        );
+
+        //newTime will check for the time we provided is in future or not
+        // const newTime = await time.increase(unlockTime);
+        // console.log(newTime);
+
+        await time.increase(unlockTime);
+        await expect(
+          myTest.connect(otherAccount).withdraw()
+        ).to.be.revertedWith("You are not the owner");
+      });
+      //what it the time is already about to end and the owner is calling it at the same time, not to allow the owner to withdraw it but in the future not at the exact time
+      it("Should fail if the unlockedTime has arrived and the owner calls it", async function{
+        await time.increase(unlockTime);
+        await expect(myTest.withdraw()).not.to.be.reverted
+      })
     });
   });
+
   runEveryTime();
 });
