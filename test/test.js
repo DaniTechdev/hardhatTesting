@@ -122,6 +122,35 @@ describe("MyTest", function () {
         await time.increaseTo(unlockTime);
         await expect(myTest.withdraw()).not.to.be.reverted;
       });
+
+      //NOW LETS CHECK FOR EVENTS
+      describe("EVENTS", function () {
+        //SUBMIT EVENTS
+        it("Should emit the event on withdrawals", async function () {
+          const { myTest, unlockTime, lockedAmount } = await loadFixture(
+            runEveryTime
+          );
+
+          await time.increaseTo(unlockTime);
+
+          await expect(myTest.withdraw())
+            .to.emit(myTest, "Widthdraw")
+            .withArgs(lockedAmount, anyValue);
+        });
+      });
+    });
+  });
+
+  describe("Transfer", function () {
+    it("Should transfer the fund to the ownee", async function () {
+      const { myTest, unlockTime, lockedAmount, owner } = await loadFixture(
+        runEveryTime
+      );
+      await time.increaseTo(unlockTime);
+      await expect(myTest.withdraw()).to.changeEtherBalances(
+        [owner, myTest],
+        [lockedAmount, -lockedAmount]
+      );
     });
   });
 
