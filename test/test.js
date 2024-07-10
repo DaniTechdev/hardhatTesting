@@ -111,16 +111,17 @@ describe("MyTest", function () {
         // const newTime = await time.increase(unlockTime);
         // console.log(newTime);
 
-        await time.increase(unlockTime);
+        await time.increaseTo(unlockTime);
         await expect(
           myTest.connect(otherAccount).withdraw()
         ).to.be.revertedWith("You are not the owner");
       });
       //what it the time is already about to end and the owner is calling it at the same time, not to allow the owner to withdraw it but in the future not at the exact time
-      it("Should fail if the unlockedTime has arrived and the owner calls it", async function{
-        await time.increase(unlockTime);
-        await expect(myTest.withdraw()).not.to.be.reverted
-      })
+      it("Should fail if the unlockedTime has arrived and the owner calls it", async function () {
+        const { myTest, unlockTime } = await loadFixture(runEveryTime);
+        await time.increaseTo(unlockTime);
+        await expect(myTest.withdraw()).not.to.be.reverted;
+      });
     });
   });
 
